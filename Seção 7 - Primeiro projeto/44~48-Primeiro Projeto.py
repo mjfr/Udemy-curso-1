@@ -1,3 +1,4 @@
+import os
 # Um jogo da velha deve possuir:
 # - Tabuleiro
 #       Nove espaços em forma de #
@@ -7,47 +8,24 @@
 #       Cada jogador possui um símbolo (X / O)
 #       O jogador deve poder escolher a posição para colocar o seu símbolo, dada a disponibilidade do tabuleiro
 
-# Definir um tabuleiro:
-lista_tabuleiro_superior = [x for x in range(1, 4)]
-lista_tabuleiro_meio = [x for x in range(4, 7)]
-lista_tabuleiro_inferior = [x for x in range(7, 10)]
+lista_tabuleiro_superior = ['__', '__', '__']
+lista_tabuleiro_meio = ['__', '__', '__']
+lista_tabuleiro_inferior = ['__', '__', '__']
 
+# Define um tabuleiro:
 def tabuleiro():
-    #return ('', lista_tabuleiro_superior,'\n', lista_tabuleiro_meio, '\n', lista_tabuleiro_inferior)
-    return  [lista_tabuleiro_superior, lista_tabuleiro_meio, lista_tabuleiro_inferior]
-tabuleiro()
+    tabuleiro.lista_tabuleiro_superior = lista_tabuleiro_superior
+    tabuleiro.lista_tabuleiro_meio = lista_tabuleiro_meio
+    tabuleiro.lista_tabuleiro_inferior = lista_tabuleiro_inferior
+    return [tabuleiro.lista_tabuleiro_superior, tabuleiro.lista_tabuleiro_meio, tabuleiro.lista_tabuleiro_inferior]
 
-# Desenhar tabuleiro:
-def desenhar_tabuleiro():
-    tabuleiro()
-    # Adicionar símbolo ao tabuleiro:
-    def posicao_input():
-        return str(input('Escolha a posição que marcará:'))
-    condicional = True
-    while condicional:
-        posicao = posicao_input()
-        if (posicao.isdigit() and 1 <= int(posicao) <= 9):
-            condicional = False
-        else:
-            print('Escolha apenas os números inteiros que aparecem no tabuleiro! \nTente novamente.')
-    print(posicao)
-    if 1 <= int(posicao) <= 3:
-        tabuleiro()[0][int(posicao)-1] = 'hey'
-    # if 4 <= int(posicao) <= 6:
-    #     print(tabuleiro()[0][int(posicao)])
-    # if 7 <= int(posicao) <= 9:
-    #     print(tabuleiro()[0][int(posicao)])
 
-desenhar_tabuleiro()
 
 # Definir os jogadores:
 def gera_jogadores():
     '''
     Função para escolher qual jogador ficará com qual símbolo
     '''
-    # Função interna para pegar o input do símbolo que o usuário escolheu
-    #def jogador_input():
-    #    return input('Escolha quem será o primeiro a jogar: (O / X)').upper()
     # Criação do dicionário para armazenar o jogador e seu símbolo
     dict_jogadores = {'Jogador 1' : '', 'Jogador 2' : ''}
     # Enquanto o jogador não escolher X ou O, ele não pode prosseguir.
@@ -64,24 +42,169 @@ def gera_jogadores():
     else:
         dict_jogadores['Jogador 2'] = 'O'
     # Retorna um dicionário com as chaves sendo os jogadores e os valores seus símbolos
+    gera_jogadores.jogadores = dict_jogadores
+    gera_jogadores.jogador1 = gera_jogadores.jogadores['Jogador 1']
+    gera_jogadores.jogador2 = gera_jogadores.jogadores['Jogador 2']
     return dict_jogadores
 
-jogadores = gera_jogadores()
 
-
-# Vez do jogador
-def vez_do_jogador():
-    vez = jogadores['Jogador 1']
-    if 'X' == jogadores['Jogador 1']:
-        print('Vez do jogador 1')
-    else:
-        print('Vez do jogador 2')
-    # print('Vez do')
 
 # Verificar o tabuleiro:
+def resposta_reinicio():
+    def resposta_input():
+        return str(input('Gostaria de reiniciar o jogo? (sim / nao)'))
+    # Resposta para confirmar ou negar o reinício
+    sim_nao = True
+    while sim_nao:
+        resp = resposta_input()
+        if resp == 'sim':
+            resposta_bool = True
+            sim_nao = False
+        elif resp == 'nao':
+            resposta_bool = False
+            sim_nao = False
+            break
+        else:
+            print('Responda apenas com (sim / nao)')
+    reiniciar(resposta_bool)
+
+
+
 def verificar_tabuleiro():
-    pass
+    # 2 ifs para a primeira fileira (1, 2, 3)
+    if tabuleiro()[0].count(gera_jogadores.jogadores['Jogador 1']) == 3 and tabuleiro()[0][0] == gera_jogadores.jogadores['Jogador 1']:
+        print('Parabéns Jogador 1, você ganhou')
+        resposta_reinicio()
+    if tabuleiro()[0].count(gera_jogadores.jogadores['Jogador 2']) == 3 and tabuleiro()[0][0] == gera_jogadores.jogadores['Jogador 2']:
+        print('Parabéns Jogador 2, você ganhou')
+        resposta_reinicio()
+    # 2 ifs para a segunda fileira (4, 5, 6)
+    if tabuleiro()[1].count(gera_jogadores.jogadores['Jogador 1']) == 3 and tabuleiro()[1][0] == gera_jogadores.jogadores['Jogador 1']:
+        print('Parabéns Jogador 1, você ganhou')
+        resposta_reinicio()
+    if tabuleiro()[1].count(gera_jogadores.jogadores['Jogador 2']) == 3 and tabuleiro()[1][0] == gera_jogadores.jogadores['Jogador 2']:
+        print('Parabéns Jogador 2, você ganhou')
+        resposta_reinicio()
+    # 2 ifs para a terceira fileira (7, 8, 9)
+    if tabuleiro()[2].count(gera_jogadores.jogadores['Jogador 1']) == 3 and tabuleiro()[2][0] == gera_jogadores.jogadores['Jogador 1']:
+        print('Parabéns Jogador 1, você ganhou')
+        resposta_reinicio()
+    if tabuleiro()[2].count(gera_jogadores.jogadores['Jogador 2']) == 3 and tabuleiro()[2][0] == gera_jogadores.jogadores['Jogador 2']:
+        print('Parabéns Jogador 2, você ganhou')
+        resposta_reinicio()
+    # 2 ifs para a primeira coluna (1, 4, 7)
+    if tabuleiro()[0][0] == gera_jogadores.jogadores['Jogador 1'] and tabuleiro()[1][0] == gera_jogadores.jogadores['Jogador 1'] and tabuleiro()[2][0] == gera_jogadores.jogadores['Jogador 1'] and tabuleiro()[0][0] == gera_jogadores.jogadores['Jogador 1']:
+        print('Parabéns Jogador 1, você ganhou')
+        resposta_reinicio()
+    if tabuleiro()[0][0] == gera_jogadores.jogadores['Jogador 2'] and tabuleiro()[1][0] == gera_jogadores.jogadores['Jogador 2'] and tabuleiro()[2][0] == gera_jogadores.jogadores['Jogador 2'] and tabuleiro()[0][0] == gera_jogadores.jogadores['Jogador 2']:
+        print('Parabéns Jogador 2, você ganhou')
+        resposta_reinicio()
+    # 2 ifs para a segunda coluna (2, 5, 8)
+    if tabuleiro()[0][1] == gera_jogadores.jogadores['Jogador 1'] and tabuleiro()[1][1] == gera_jogadores.jogadores['Jogador 1'] and tabuleiro()[2][1] == gera_jogadores.jogadores['Jogador 1'] and tabuleiro()[0][1] == gera_jogadores.jogadores['Jogador 1']:
+        print('Parabéns Jogador 1, você ganhou')
+        resposta_reinicio()
+    if tabuleiro()[0][1] == gera_jogadores.jogadores['Jogador 2'] and tabuleiro()[1][1] == gera_jogadores.jogadores['Jogador 2'] and tabuleiro()[2][1] == gera_jogadores.jogadores['Jogador 2'] and tabuleiro()[0][1] == gera_jogadores.jogadores['Jogador 2']:
+        print('Parabéns Jogador 2, você ganhou')
+        resposta_reinicio()
+    # 2 ifs para a terceira coluna (3, 6, 9)
+    if tabuleiro()[0][2] == gera_jogadores.jogadores['Jogador 1'] and tabuleiro()[1][2] == gera_jogadores.jogadores['Jogador 1'] and tabuleiro()[2][2] == gera_jogadores.jogadores['Jogador 1'] and tabuleiro()[0][2] == gera_jogadores.jogadores['Jogador 1']:
+        print('Parabéns Jogador 1, você ganhou')
+        resposta_reinicio()
+    if tabuleiro()[0][2] == gera_jogadores.jogadores['Jogador 2'] and tabuleiro()[1][2] == gera_jogadores.jogadores['Jogador 2'] and tabuleiro()[2][2] == gera_jogadores.jogadores['Jogador 2'] and tabuleiro()[0][2] == gera_jogadores.jogadores['Jogador 2']:
+        print('Parabéns Jogador 2, você ganhou')
+        resposta_reinicio()
+    # 2 ifs para a primeira diagonal (1, 5, 9)
+    if tabuleiro()[0][0] == gera_jogadores.jogadores['Jogador 1'] and tabuleiro()[1][1] == gera_jogadores.jogadores['Jogador 1'] and tabuleiro()[2][2] == gera_jogadores.jogadores['Jogador 1'] and tabuleiro()[0][0] == gera_jogadores.jogadores['Jogador 1']:
+        print('Parabéns Jogador 1, você ganhou')
+        resposta_reinicio()
+    if tabuleiro()[0][0] == gera_jogadores.jogadores['Jogador 2'] and tabuleiro()[1][1] == gera_jogadores.jogadores['Jogador 2'] and tabuleiro()[2][2] == gera_jogadores.jogadores['Jogador 2'] and tabuleiro()[0][0] == gera_jogadores.jogadores['Jogador 2']:
+        print('Parabéns Jogador 2, você ganhou')
+        resposta_reinicio()
+    # 2 ifs para a segunda diagonal (7, 5, 3)
+    if tabuleiro()[2][0] == gera_jogadores.jogadores['Jogador 1'] and tabuleiro()[1][1] == gera_jogadores.jogadores['Jogador 1'] and tabuleiro()[0][2] == gera_jogadores.jogadores['Jogador 1'] and tabuleiro()[2][0] == gera_jogadores.jogadores['Jogador 1']:
+        print('Parabéns Jogador 1, você ganhou')
+        resposta_reinicio()
+    if tabuleiro()[2][0] == gera_jogadores.jogadores['Jogador 2'] and tabuleiro()[1][1] == gera_jogadores.jogadores['Jogador 2'] and tabuleiro()[0][2] == gera_jogadores.jogadores['Jogador 2'] and tabuleiro()[2][0] == gera_jogadores.jogadores['Jogador 2']:
+        print('Parabéns Jogador 2, você ganhou')
+        resposta_reinicio()
+    if (tabuleiro()[0].count(gera_jogadores.jogadores['Jogador 2']) + tabuleiro()[0].count(gera_jogadores.jogadores['Jogador 1']) == 3) and (tabuleiro()[1].count(gera_jogadores.jogadores['Jogador 2']) + tabuleiro()[1].count(gera_jogadores.jogadores['Jogador 1']) == 3) and (tabuleiro()[2].count(gera_jogadores.jogadores['Jogador 2']) + tabuleiro()[2].count(gera_jogadores.jogadores['Jogador 1']) == 3):
+        print('Booooo!!!!! Deu velha!')
+        resposta_reinicio()
+
+
+
+# Desenhar tabuleiro:
+def desenhar_tabuleiro(vez):
+    print('', tabuleiro.lista_tabuleiro_superior, '\n', tabuleiro.lista_tabuleiro_meio, '\n', tabuleiro.lista_tabuleiro_inferior)
+    # Adicionar símbolo ao tabuleiro:
+    def posicao_input():
+        return str(input('Escolha a posição que marcará:'))
+    condicional = True
+    while condicional:
+        posicao = posicao_input()
+        if (posicao.isdigit() and 1 <= int(posicao) <= 9):
+            condicional = False
+        else:
+            print('Escolha apenas os números inteiros que aparecem no tabuleiro! \nTente novamente.')
+    condicional2 = True
+    while condicional2:
+        if 1 <= int(posicao) <= 3:
+            if tabuleiro.lista_tabuleiro_superior[int(posicao)-1] != 'X' and tabuleiro.lista_tabuleiro_superior[int(posicao)-1] != 'O':
+                tabuleiro.lista_tabuleiro_superior[int(posicao)-1] = vez
+                condicional2 = False
+                # return tabuleiro.lista_tabuleiro_superior, tabuleiro.lista_tabuleiro_meio, tabuleiro.lista_tabuleiro_inferior
+            else:
+                print('Você escolheu uma posição invalida ou ocupada.')
+                posicao = posicao_input()
+        elif 4 <= int(posicao) <= 6:
+            if tabuleiro.lista_tabuleiro_meio[int(posicao)-4] != 'X' and tabuleiro.lista_tabuleiro_meio[int(posicao)-4] != 'O':
+                tabuleiro.lista_tabuleiro_meio[int(posicao)-4] = vez
+                condicional2 = False
+                # return tabuleiro.lista_tabuleiro_superior, tabuleiro.lista_tabuleiro_meio, tabuleiro.lista_tabuleiro_inferior
+            else:
+                print('Você escolheu uma posição invalida ou ocupada.')
+                posicao = posicao_input()
+        elif 7 <= int(posicao) <= 9:
+            if tabuleiro.lista_tabuleiro_inferior[int(posicao)-7] != 'X' and tabuleiro.lista_tabuleiro_inferior[int(posicao)-7] != 'O':
+                tabuleiro.lista_tabuleiro_inferior[int(posicao)-7] = vez
+                condicional2 = False
+                # return tabuleiro.lista_tabuleiro_superior, tabuleiro.lista_tabuleiro_meio, tabuleiro.lista_tabuleiro_inferior
+            else:
+                print('Você escolheu uma posição invalida ou ocupada.')
+                posicao = posicao_input()
+    print('', tabuleiro.lista_tabuleiro_superior, '\n', tabuleiro.lista_tabuleiro_meio, '\n', tabuleiro.lista_tabuleiro_inferior)
+
+
 
 # Jogar
 def iniciar():
-    pass
+    gera_jogadores()
+    for i in range(0, 9):
+        if i%2==0:
+            vez = gera_jogadores.jogador1
+            verificar_tabuleiro()
+            desenhar_tabuleiro(vez)
+            os.system('cls')
+        else:
+            vez = gera_jogadores.jogador2
+            verificar_tabuleiro()
+            desenhar_tabuleiro(vez)
+            os.system('cls')
+            
+
+
+def reiniciar(decisao : bool):
+    if decisao == False:
+        print('Obrigado por jogar!')
+        quit()
+    else:
+        print('\n Jogo passado \n', '', tabuleiro.lista_tabuleiro_superior, '\n', tabuleiro.lista_tabuleiro_meio, '\n', tabuleiro.lista_tabuleiro_inferior)
+        global lista_tabuleiro_superior
+        global lista_tabuleiro_meio
+        global lista_tabuleiro_inferior
+        lista_tabuleiro_superior = ['__', '__', '__']
+        lista_tabuleiro_meio = ['__', '__', '__']
+        lista_tabuleiro_inferior = ['__', '__', '__']
+        iniciar()
+        
+iniciar()
