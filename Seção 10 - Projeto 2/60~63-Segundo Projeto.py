@@ -1,4 +1,6 @@
+from math import inf
 from random import choice
+from os import system
 
 # Um jogo de blackjack deve possuir:
 # Um jogador vs um dealer (automático)
@@ -31,18 +33,22 @@ class Jogador(object):
     def __repr__(self):
         return '{0}'.format(self.nome)
 
-# class Dealer(Jogador):
-#     def __init__(self, nome='Dealer', posicao=1, vitorias=0, derrotas=0):
-#         self.nome = nome
-#         self.vitorias = vitorias
-#         self.derrotas = derrotas
-        
-#     def __repr__(self):
-#         return '{0}'.format(self.nome)
+
+class Dealer(Jogador):
+    def __init__(self, cartas):
+        self.nome = 'Dealer'
+        self.cartas = cartas
+    
+    # Função para retornar retornar o nome em formato de string ao invés de endereço de memória (usado para o dictionary)
+    def __repr__(self):
+        return '{0}'.format(self.nome)
 
 
 # Função de criação das cartas
 def criar_cartas():
+    '''
+    Função que cria o baralho de cartas e retorna  8 baralhos idênticos. Retorna list
+    '''
     cartas = [i for i in range(2, 11)]
     cartas.insert(0, 'Ás')
     cartas.append('J')
@@ -67,10 +73,11 @@ def quantidade_de_jogadores():
             print('ERRO: Digite apenas quantos jogadores irão jogar.')
     return qtd_jogadores
 
+
 # Função que atribui um nome ou apelido ao jogador, justamente criando instâncias da classe Jogador. Armazena o jogador em um dictionary e os jogadores em uma lista.
 def atribuir_nomes_aos_jogadores(numero_de_jogadores):
     '''
-    Função que recebe como atributo a quantidade de jogadores que participarão do jogo e os separam em dictonaries com valores que possibilitam uma fácil identificação como nome/apelido e sua posição no jogo. Retorna lista
+    Função que recebe como atributo a quantidade de jogadores que participarão do jogo e os separam em dictonaries com valores que possibilitam uma fácil identificação como nome/apelido e sua posição no jogo. Retorna list
     '''
     jogadores = []
     for numero in range(1, numero_de_jogadores+1):
@@ -79,70 +86,167 @@ def atribuir_nomes_aos_jogadores(numero_de_jogadores):
         jogadores.append(jogador)
     return jogadores
 
+    
+def apostas(qtd_jogadores, informacao_jogadores):
+    while True:
+        try:
+            aposta = int(input('Caro jogador, faça sua aposta: '))
+            if informacao_jogadores[qtd_jogadores-1]['Saldo'] - aposta >= 0:
+                print('R$', aposta)
+                informacao_jogadores[qtd_jogadores-1]['Saldo'] -= aposta
+                break
+        except ValueError:
+            print('Digite um valor inteiro e válido.')
+        else:
+            print('SEM SALDO')
+    return aposta
+
+
+def atribuir_cartas(qtd_jogadores, informacao_jogadores, cartas, vezes = 1):
+    for i in range(0, vezes):
+        informacao_jogadores[qtd_jogadores-1]['Cartas'].append(choice(cartas))
+
+
 # Função que retorna a jogada escolhida pelo jogador para ser usado na função dealer(qtd_jogadores).
-def escuta_jogada(jogador):
+def escuta_jogada(qtd_jogadores, informacao_jogadores, cartas):
     '''
     Função que recebe o jogador que está jogando no momento e retorna um int(input()) que será usado como decisão de jogada. Retorna int
     '''
     while True:
         try:
-            jogada = int(input('Escolha de jogadas:\n{0}, qual jogada gostaria de realizar?\n1-)Stand\n2-)Hit\n3-)Double\n4-)Split\n5-)Surrender\n'.format(jogador)))
-            if jogada > 0 and jogada <= 5:
+            jogada = int(input('Escolha de jogadas:\n{0}, qual jogada gostaria de realizar?\n1-)Stand\n2-)Hit\n3-)Double\n4-)Split\n5-)Surrender\n6-)Sair'.format(informacao_jogadores[qtd_jogadores-1]['Nome'])))
+            if jogada > 0 and jogada <= 6:
                 break
             else:
                 print('Existem 5 opções numeradas de 1 a 5. Para escolher a jogada, escolha uma entre elas.')
         except ValueError:
             print('ERRO: Use o teclado numérico para escolher apenas uma das jogadas citadas.')
-    return jogada
-    
-def atribuir_cartas(qtd_jogadores, informacao_jogadores, cartas, vezes):
-    for i in range(0, vezes):
-        informacao_jogadores[qtd_jogadores-1]['Cartas'].append(choice(cartas))
-    #return informacao_jogadores[qtd_jogadores-1]['Cartas']
+    if jogada == 1:
+        print('Stand.')
+        # Mantém as cartas e espera o dealer virar a carta furo e possivelmente comprar mais cartas
+        return 1
 
-# Função que fará a lógica do Dealer.
-def dealer(qtd_jogadores, informacao_jogadores, cartas = criar_cartas()):
-    print('\nDealer em ação...\n')
-    dealer_ascendente = choice(cartas)
-    carta_furo = choice(cartas)
-    aposta = 0
-    print('Carta do dealer virada para cima: {0}'.format(dealer_ascendente))
-    print('REMOVER PRINT NA FINALIZAÇÃO::: carta virada para baixo: {0}'.format(carta_furo))
-    # Verificação do modo de funcionamento do dealer (um ou múltiplos jogadores)
-    if qtd_jogadores == 1:
+    elif jogada == 2:
+        print('Hit.')
+        atribuir_cartas(qtd_jogadores, informacao_jogadores, cartas, 1)
+        print('\nSua mão agora é: ', informacao_jogadores[qtd_jogadores-1]['Cartas'])
+        print('\nEscolha 1 para pedir mais uma carta ou 0 para parar de pedir.')
         while True:
             try:
-                aposta = int(input('Caro jogador, faça sua aposta: '))
-                if informacao_jogadores[qtd_jogadores-1]['Saldo'] - aposta >= 0:
-                    print('R$', aposta)
-                    informacao_jogadores[qtd_jogadores-1]['Saldo'] -= aposta
-                    break
+                hit = input('1 - Pedir mais uma carta\n0 - Parar de pedir cartas')
             except ValueError:
-                print('Digite um valor inteiro e válido.')
+                print('ERRO: Escolha apenas entre 1 e 0')
+            if hit == 1:
+                atribuir_cartas(qtd_jogadores, informacao_jogadores, cartas, 1)
+                print('\nSua mão agora é: ', informacao_jogadores[qtd_jogadores-1]['Cartas'])
             else:
-                print('SEM SALDO')
+                break
+        return 2
+
+
+    elif jogada == 3:
+        print('Double.')
+        return 3
+
+    elif jogada == 4:
+        print('Split.')
+        return 4
+
+    elif jogada == 5:
+        print('Surrender.')
+        return 5
+
+    elif jogada == 6:
+        system('cls')
+        print('Sair.')
+        print('Obrigado por jogar.')
+
+
+def dealer(qtd_jogadores, informacao_jogadores, cartas):
+    '''
+    '''
+    print('\nDealer em ação...\n')
+    #cartas_dealer = [dealer_ascendente, carta_furo]
+
+
+
+    # Distribuição de cartas iniciais: 2 para cada jogador, viradas para cima. 2 para o dealer sendo uma para cima e outra para baixo.
+    #escuta_jogada()
+    return print(informacao_jogadores)
+
+
+def condicoes_vitoria(qtd_jogadores, informacao_jogadores):
+    #cartas = informacao_jogadores[qtd_jogadores-1]['Cartas']
+    cartas = [10, 'ÁS']
+    valor = 0
+    for carta in range(len(cartas)):
+        if cartas[carta] == 'J' or cartas[carta] == "Q" or cartas[carta] == 'K':
+            cartas[carta] = 10
+            print(cartas)
+            valor += cartas[carta]
+            
+        print('VALOR',valor)
+        if cartas.count('ÁS') == 1 and cartas[carta] == 'ÁS':
+            if valor == 10:
+                cartas[carta] = 11
+                valor = 21
+            
+        print(valor)
+            
+def pagar(qtd_jogadores, informacao_jogadores, aposta):
+    informacao_jogadores[qtd_jogadores-1]['Saldo'] += (3/2)*aposta
+
+def blackjack():
+    print('Bem vindo ao Blackjack versão texto!')
+    cartas = criar_cartas()
+    qtd_jogadores = quantidade_de_jogadores()
+    
+    dealer_ascendente = choice(cartas)
+    carta_furo = choice(cartas)
+    var_dealer = Dealer([dealer_ascendente, carta_furo])
+    print('Carta do dealer virada para cima: {0}'.format(dealer_ascendente))
+    print('REMOVER PRINT NA FINALIZAÇÃO::: carta virada para baixo: {0}'.format(carta_furo))
+
+    informacao_jogadores = atribuir_nomes_aos_jogadores(qtd_jogadores)
+
+    if qtd_jogadores == 1:
         print('Apenas 1 jogador')
+        aposta = apostas(qtd_jogadores, informacao_jogadores)
+        valor_apostado = aposta
         # Distribuindo as primeiras cartas
         atribuir_cartas(qtd_jogadores, informacao_jogadores, cartas, 2)
-        if informacao_jogadores[qtd_jogadores-1]['Cartas'].count('Ás') == 1 and (informacao_jogadores[qtd_jogadores-1]['Cartas'].count('J') == 1 or informacao_jogadores[qtd_jogadores-1]['Cartas'].count('Q') == 1 or informacao_jogadores[qtd_jogadores-1]['Cartas'].count('K') == 1):
+        if informacao_jogadores[qtd_jogadores-1]['Cartas'].count('Ás') == 1 and (informacao_jogadores[qtd_jogadores-1]['Cartas'].count(10) == 1 or informacao_jogadores[qtd_jogadores-1]['Cartas'].count('J') == 1 or informacao_jogadores[qtd_jogadores-1]['Cartas'].count('Q') == 1 or informacao_jogadores[qtd_jogadores-1]['Cartas'].count('K') == 1):
             print('Blackjack!')
+            pagar(qtd_jogadores, informacao_jogadores, informacao_jogadores[qtd_jogadores-1]['Saldo'] + aposta)
             informacao_jogadores[qtd_jogadores-1]['Vitorias'] += 1
-        # for i in informacao_jogadores[qtd_jogadores-1]['Cartas']:
+            #informacao_jogadores[qtd_jogadores-1]['Cartas'] = []
+    
+    while True:
+        jogada_escolhida = escuta_jogada(qtd_jogadores, informacao_jogadores, cartas)
+        if jogada_escolhida == 1:
+            print('Dealer revelou a carta furo: {0}'.format(carta_furo))
+            print('Mão do dealer: {0}'.format(var_dealer.cartas))
+            if var_dealer.cartas.count('Ás') == 1 and (var_dealer.cartas.count(10) == 1 or var_dealer.cartas.count('J') == 1 or var_dealer.cartas.count('Q') == 1 or var_dealer.cartas.count('K') == 1):
+                print('Blackjack para o dealer!')
+                informacao_jogadores[qtd_jogadores-1]['Derrotas'] += 1
+                break
+                #var_dealer.cartas = []
+            break
+        elif jogada_escolhida == 3:
+            if aposta > informacao_jogadores[qtd_jogadores-1]['Saldo']:
+                print('Ignorando double. Razão: Saldo insuficiente')
+            else:
+                informacao_jogadores[qtd_jogadores-1]['Saldo'] -= aposta
+                valor_apostado = aposta * 2
+                atribuir_cartas(qtd_jogadores, informacao_jogadores, cartas, 1)
+                break
+        
 
     # Pega o próximo jogador
     else:
         print('Mais que 1 jogador')
+    print(informacao_jogadores)
 
-    # Distribuição de cartas iniciais: 2 para cada jogador, viradas para cima. 2 para o dealer sendo uma para cima e outra para baixo.
-    #escuta_jogada()
-    return print(qtd_jogadores, '\n\n', informacao_jogadores)
-
-    
-
-def blackjack():
-    print('Bem vindo ao Blackjack versão texto!')
-    qtd_jogadores = quantidade_de_jogadores()
-    informacao_jogadores = atribuir_nomes_aos_jogadores(qtd_jogadores)
-    dealer(qtd_jogadores, informacao_jogadores)
+    #dealer(qtd_jogadores, informacao_jogadores, cartas)
 blackjack()
 
