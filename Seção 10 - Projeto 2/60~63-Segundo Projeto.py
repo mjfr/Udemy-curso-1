@@ -121,28 +121,14 @@ def escuta_jogada(qtd_jogadores, informacao_jogadores, cartas):
                 print('Existem 5 opções numeradas de 1 a 5. Para escolher a jogada, escolha uma entre elas.')
         except ValueError:
             print('ERRO: Use o teclado numérico para escolher apenas uma das jogadas citadas.')
+
     if jogada == 1:
         print('Stand.')
-        # Mantém as cartas e espera o dealer virar a carta furo e possivelmente comprar mais cartas
         return 1
 
     elif jogada == 2:
         print('Hit.')
-        atribuir_cartas(qtd_jogadores, informacao_jogadores, cartas, 1)
-        print('\nSua mão agora é: ', informacao_jogadores[qtd_jogadores-1]['Cartas'])
-        print('\nEscolha 1 para pedir mais uma carta ou 0 para parar de pedir.')
-        while True:
-            try:
-                hit = input('1 - Pedir mais uma carta\n0 - Parar de pedir cartas')
-            except ValueError:
-                print('ERRO: Escolha apenas entre 1 e 0')
-            if hit == 1:
-                atribuir_cartas(qtd_jogadores, informacao_jogadores, cartas, 1)
-                print('\nSua mão agora é: ', informacao_jogadores[qtd_jogadores-1]['Cartas'])
-            else:
-                break
         return 2
-
 
     elif jogada == 3:
         print('Double.')
@@ -158,8 +144,9 @@ def escuta_jogada(qtd_jogadores, informacao_jogadores, cartas):
 
     elif jogada == 6:
         system('cls')
-        print('Sair.')
-        print('Obrigado por jogar.')
+        print('Saindo...')
+        print('Obrigado por jogar!')
+        return 6
 
 
 def dealer(qtd_jogadores, informacao_jogadores, cartas):
@@ -168,33 +155,39 @@ def dealer(qtd_jogadores, informacao_jogadores, cartas):
     print('\nDealer em ação...\n')
     #cartas_dealer = [dealer_ascendente, carta_furo]
 
-
-
     # Distribuição de cartas iniciais: 2 para cada jogador, viradas para cima. 2 para o dealer sendo uma para cima e outra para baixo.
     #escuta_jogada()
     return print(informacao_jogadores)
 
 
-def condicoes_vitoria(qtd_jogadores, informacao_jogadores):
-    #cartas = informacao_jogadores[qtd_jogadores-1]['Cartas']
-    cartas = [10, 'ÁS']
-    valor = 0
+def verifica_soma(qtd_jogadores, informacao_jogadores, cartas):
+    soma = 0
     for carta in range(len(cartas)):
-        if cartas[carta] == 'J' or cartas[carta] == "Q" or cartas[carta] == 'K':
+        if cartas[carta] == 'J':
             cartas[carta] = 10
             print(cartas)
-            valor += cartas[carta]
-            
-        print('VALOR',valor)
-        if cartas.count('ÁS') == 1 and cartas[carta] == 'ÁS':
-            if valor == 10:
+        elif cartas[carta] == "Q":
+            cartas[carta] = 10
+            print(cartas)
+        elif cartas[carta] == 'K':
+            cartas[carta] = 10
+            print(cartas)
+
+        if cartas[carta] == 'ÁS':
+            if soma == 10:
                 cartas[carta] = 11
-                valor = 21
-            
-        print(valor)
+            elif soma < 10:
+                cartas[carta] = 11
+            elif soma > 10:
+                cartas[carta] = 1
+        soma += cartas[carta]    
+    print(soma) # Retirar depois
+    return soma
+        
             
 def pagar(qtd_jogadores, informacao_jogadores, aposta):
     informacao_jogadores[qtd_jogadores-1]['Saldo'] += (3/2)*aposta
+
 
 def blackjack():
     print('Bem vindo ao Blackjack versão texto!')
@@ -215,7 +208,8 @@ def blackjack():
         valor_apostado = aposta
         # Distribuindo as primeiras cartas
         atribuir_cartas(qtd_jogadores, informacao_jogadores, cartas, 2)
-        if informacao_jogadores[qtd_jogadores-1]['Cartas'].count('Ás') == 1 and (informacao_jogadores[qtd_jogadores-1]['Cartas'].count(10) == 1 or informacao_jogadores[qtd_jogadores-1]['Cartas'].count('J') == 1 or informacao_jogadores[qtd_jogadores-1]['Cartas'].count('Q') == 1 or informacao_jogadores[qtd_jogadores-1]['Cartas'].count('K') == 1):
+        #if informacao_jogadores[qtd_jogadores-1]['Cartas'].count('Ás') == 1 and (informacao_jogadores[qtd_jogadores-1]['Cartas'].count(10) == 1 or informacao_jogadores[qtd_jogadores-1]['Cartas'].count('J') == 1 or informacao_jogadores[qtd_jogadores-1]['Cartas'].count('Q') == 1 or informacao_jogadores[qtd_jogadores-1]['Cartas'].count('K') == 1):
+        if verifica_soma(qtd_jogadores, informacao_jogadores, informacao_jogadores[qtd_jogadores-1]['Cartas']) == 21:
             print('Blackjack!')
             pagar(qtd_jogadores, informacao_jogadores, informacao_jogadores[qtd_jogadores-1]['Saldo'] + aposta)
             informacao_jogadores[qtd_jogadores-1]['Vitorias'] += 1
@@ -232,6 +226,20 @@ def blackjack():
                 break
                 #var_dealer.cartas = []
             break
+        elif jogada_escolhida == 2:
+            atribuir_cartas(qtd_jogadores, informacao_jogadores, cartas, 1)
+            print('\nSua mão agora é: ', informacao_jogadores[qtd_jogadores-1]['Cartas'])
+            print('\nEscolha 1 para pedir mais uma carta ou 0 para parar de pedir.')
+            while True:
+                try:
+                    hit = input('1 - Pedir mais uma carta\n0 - Parar de pedir cartas')
+                except ValueError:
+                    print('ERRO: Escolha apenas entre 1 e 0')
+                if hit == 1:
+                    atribuir_cartas(qtd_jogadores, informacao_jogadores, cartas, 1)
+                    print('\nSua mão agora é: ', informacao_jogadores[qtd_jogadores-1]['Cartas'])
+                else:
+                    break
         elif jogada_escolhida == 3:
             if aposta > informacao_jogadores[qtd_jogadores-1]['Saldo']:
                 print('Ignorando double. Razão: Saldo insuficiente')
@@ -240,6 +248,8 @@ def blackjack():
                 valor_apostado = aposta * 2
                 atribuir_cartas(qtd_jogadores, informacao_jogadores, cartas, 1)
                 break
+        elif jogada_escolhida == 6:
+            break
         
 
     # Pega o próximo jogador
